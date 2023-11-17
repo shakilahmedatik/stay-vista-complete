@@ -3,10 +3,10 @@ const app = express()
 require('dotenv').config()
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const { MongoClient, ServerApiVersion } = require('mongodb')
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 const jwt = require('jsonwebtoken')
 const morgan = require('morgan')
-const port = process.env.PORT || 8000
+const port = process.env.PORT || 9000
 
 // middleware
 const corsOptions = {
@@ -44,6 +44,7 @@ const client = new MongoClient(process.env.DB_URI, {
 async function run() {
   try {
     const usersCollection = client.db('stayVistaDb').collection('users')
+    const roomsCollection = client.db('stayVistaDb').collection('rooms')
     // auth related api
     app.post('/jwt', async (req, res) => {
       const user = req.body
@@ -92,6 +93,42 @@ async function run() {
         },
         options
       )
+      res.send(result)
+    })
+
+    // Get user role
+    app.get('/user/:email', async (req, res) => {
+      const email = req.params.email
+      const result = await usersCollection.findOne({ email })
+      res.send(result)
+    })
+
+    // Get all rooms
+    app.get('/rooms', async (req, res) => {
+      const result = await roomsCollection.find().toArray()
+      res.send(result)
+    })
+
+    //get rooms for host
+    app.get('/rooms/:email', async (req, res) => {
+      const email = req.params.email
+      const result = await roomsCollection
+        .find({ 'host.email': email })
+        .toArray()
+      res.send(result)
+    })
+
+    // Get single room data
+    app.get('/room/:id', async (req, res) => {
+      const id = req.params.id
+      const result = await roomsCollection.findOne({ _id: new ObjectId(id) })
+      res.send(result)
+    })
+
+    // Save a room in database
+    app.post('/rooms', verifyToken, async (req, res) => {
+      const room = req.body
+      const result = await roomsCollection.insertOne(room)
       res.send(result)
     })
 
