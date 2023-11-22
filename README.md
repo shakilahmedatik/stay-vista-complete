@@ -1,4 +1,4 @@
-# stayVista-part2
+# stayVista-complete
 
 - [StayVista Starter Template](https://github.com/shakilahmedatik/stayVista-starter-template)
 - [StayVista Part 1](https://github.com/shakilahmedatik/stay-vista-part1)
